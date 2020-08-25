@@ -50,7 +50,7 @@ export class VoteFormComponent implements OnInit {
       next: (vote) => {
         this.voteForm.reset({
           restaurant: vote && vote.restaurantId || '',
-          timeSlot: vote && vote.timeSlot || DEFAULT_TIME_SLOT,
+          timeSlot: vote && vote.timeSlot || '',
           foodChoice: vote && vote.foodChoice || '',
         });
       },
@@ -58,6 +58,15 @@ export class VoteFormComponent implements OnInit {
 
     this.voterService.getRestaurants().pipe(untilDestroyed(this)).subscribe({
       next: (restaurants) => this.restaurants$.next(restaurants),
+    });
+  }
+
+  cloneVote(vote: Vote): void {
+    console.log('cloneVote', vote);
+    this.voteForm.setValue({
+      restaurant: vote.restaurantId || '',
+      timeSlot: vote.timeSlot || '',
+      foodChoice: vote.foodChoice || '',
     });
   }
 

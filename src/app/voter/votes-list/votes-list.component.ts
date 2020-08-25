@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
 import { VoterService } from '../../services/voter.service';
 import { combineLatest, Observable } from 'rxjs';
 import { map, mergeMap, take } from 'rxjs/operators';
@@ -26,6 +26,8 @@ export class VotesListComponent {
   readonly isLockedToday$: Observable<boolean>;
   readonly votesWithUsers$: Observable<VoteWithUser[]>;
   readonly votesByRestaurants$: Observable<VotesByRestaurant[]>;
+
+  @Output() clonedVote = new EventEmitter<Vote>();
 
   constructor(
     private apiService: ApiService,
@@ -57,7 +59,8 @@ export class VotesListComponent {
   showSummary(votesByRestaurant: VotesByRestaurant): void {
     this.dialog.open(VotesSummaryComponent, {
       data: { votesByRestaurant },
-      minWidth: 400,
+      maxWidth: 400,
+      width: '100%',
     });
   }
 

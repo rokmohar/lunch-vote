@@ -105,14 +105,16 @@ export class ManageRestaurantComponent implements OnInit {
   createMenu(restaurantId: string): void {
     this.dialog.open(ManageMenuComponent, {
       data: { restaurantId },
-      minWidth: 600,
+      maxWidth: 600,
+      width: '100%',
     });
   }
 
   updateMenu(restaurantId: string, menuId: string): void {
     this.dialog.open(ManageMenuComponent, {
       data: { restaurantId, menuId },
-      minWidth: 600,
+      maxWidth: 600,
+      width: '100%',
     });
   }
 

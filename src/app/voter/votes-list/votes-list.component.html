@@ -28,10 +28,18 @@
     <ng-container *ngIf="votesByRestaurant.votes.length !== 0">
       <ul style="margin-top: 10px">
         <li *ngFor="let vote of votesByRestaurant.votes">
-          {{ vote.user.name }} @ {{ vote.timeSlot }}
-          <ng-container *ngIf="votesByRestaurant.restaurant.allowFoodChoice">
-            // Choice: {{ vote.foodChoice }}
+          <ng-container *ngIf="(isLockedToday$ | async) === false; else voteBody">
+            <div style="cursor: pointer" (click)="clonedVote.next(vote)">
+              <ng-container *ngTemplateOutlet="voteBody"></ng-container>
+            </div>
           </ng-container>
+
+          <ng-template #voteBody>
+            {{ vote.user.name }} @ {{ vote.timeSlot }}
+            <ng-container *ngIf="votesByRestaurant.restaurant.allowFoodChoice">
+              // Choice: {{ vote.foodChoice }}
+            </ng-container>
+          </ng-template>
         </li>
       </ul>
 
