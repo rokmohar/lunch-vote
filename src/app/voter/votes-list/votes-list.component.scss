@@ -1,0 +1,7 @@
+.actions {
+  margin-top: 20px;
+
+  [mat-stroked-button]:not(:first-child) {
+    margin-left: 10px;
+  }
+}

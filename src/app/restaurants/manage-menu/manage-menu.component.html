@@ -1,0 +1,70 @@
+<h1 style="margin-top: 0">
+  <ng-container *ngIf="menuId$ | async; else createLabel">
+    Manage Menu
+  </ng-container>
+
+  <ng-template #createLabel>
+    Create Menu
+  </ng-template>
+</h1>
+
+<form [formGroup]="menuForm" (submit)="submitMenu()">
+  <div>
+    <mat-form-field>
+      <mat-label>Label</mat-label>
+      <input matInput type="text" formControlName="label">
+    </mat-form-field>
+  </div>
+
+  <div>
+    <mat-form-field appearance="fill">
+      <mat-label>Type</mat-label>
+      <mat-select formControlName="type">
+        <mat-option *ngFor="let menuType of menuTypes" [value]="menuType.value">{{ menuType.label }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <div>
+    <mat-form-field>
+      <mat-label>Content</mat-label>
+      <textarea matInput formControlName="content"></textarea>
+    </mat-form-field>
+  </div>
+
+  <div *ngIf="(menu$ | async)?.detectedText">
+    <mat-form-field>
+      <mat-label>Detected Text</mat-label>
+      <textarea matInput formControlName="detectedText"></textarea>
+    </mat-form-field>
+  </div>
+
+  <div>
+    <mat-form-field>
+      <mat-label>Priority</mat-label>
+      <input matInput type="number" min="0" formControlName="priority">
+    </mat-form-field>
+  </div>
+
+  <div class="actions">
+    <button mat-stroked-button type="submit">
+      Save
+    </button>
+
+    <ng-container *ngIf="(menu$ | async) as menu">
+      <ng-container *ngIf="(restaurant$ | async) as restaurant">
+        <button mat-stroked-button type="button" (click)="publishFoodMenu(restaurant, menu)">
+          Publish Menu
+        </button>
+      </ng-container>
+
+      <button *ngIf="menu.type === 'external_image' && !menu.detectedText" mat-stroked-button type="button" (click)="textDetection(menu)">
+        Detect Text
+      </button>
+    </ng-container>
+
+    <button *ngIf="(menuId$ | async) as menuId" mat-stroked-button type="button" (click)="deleteMenu(menuId)">
+      Delete
+    </button>
+  </div>
+</form>

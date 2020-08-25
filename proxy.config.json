@@ -1,0 +1,18 @@
+{
+  "/api/http-proxy": {
+    "target": "https://us-central1-lunch-vote-7034a.cloudfunctions.net",
+    "changeOrigin": true,
+    "secure": true,
+    "pathRewrite": {
+      "^/api/http-proxy": "/httpProxy"
+    }
+  },
+  "/api/image-text-detection": {
+    "target": "https://us-central1-lunch-vote-7034a.cloudfunctions.net",
+    "changeOrigin": true,
+    "secure": true,
+    "pathRewrite": {
+      "^/api/image-text-detection": "/imageTextDetection"
+    }
+  }
+}

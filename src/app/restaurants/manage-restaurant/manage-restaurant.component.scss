@@ -1,0 +1,16 @@
+.page-content {
+  max-width: 800px;
+  margin: 0 auto;
+
+  table {
+    width: 100%;
+  }
+
+  .actions {
+    margin-top: 20px;
+
+    [mat-stroked-button]:not(:first-child) {
+      margin-left: 10px;
+    }
+  }
+}

@@ -1,0 +1,7 @@
+mat-form-field {
+  width: 100%;
+}
+
+.actions [mat-stroked-button]:not(:first-child) {
+  margin-left: 10px;
+}

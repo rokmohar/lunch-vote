@@ -1,0 +1,45 @@
+<header>
+  <h1>Votes</h1>
+</header>
+
+<ng-container *ngIf="isAdmin$ | async">
+  <div class="actions">
+    <ng-container *ngIf="isLockedToday$ | async; else lockTodayBtn">
+      <button mat-stroked-button (click)="setLockedToday(false)">
+        Un-lock Votes
+      </button>
+    </ng-container>
+
+    <ng-template #lockTodayBtn>
+      <button mat-stroked-button (click)="setLockedToday(true)">
+        Lock Votes
+      </button>
+    </ng-template>
+
+    <button mat-stroked-button (click)="publishResults()">
+      Publish Results
+    </button>
+  </div>
+</ng-container>
+
+<ul>
+  <li *ngFor="let votesByRestaurant of (votesByRestaurants$ | async)" style="margin-top: 10px">
+    {{ votesByRestaurant.restaurant.name }}: {{ votesByRestaurant.votes.length }} votes
+    <ng-container *ngIf="votesByRestaurant.votes.length !== 0">
+      <ul style="margin-top: 10px">
+        <li *ngFor="let vote of votesByRestaurant.votes">
+          {{ vote.user.name }} @ {{ vote.timeSlot }}
+          <ng-container *ngIf="votesByRestaurant.restaurant.allowFoodChoice">
+            // Choice: {{ vote.foodChoice }}
+          </ng-container>
+        </li>
+      </ul>
+
+      <div style="margin-top: 10px">
+        <button mat-stroked-button (click)="showSummary(votesByRestaurant)">
+          Show Summary
+        </button>
+      </div>
+    </ng-container>
+  </li>
+</ul>

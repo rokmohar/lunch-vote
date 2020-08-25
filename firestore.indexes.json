@@ -1,0 +1,47 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "restaurants",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "restaurantId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "name",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "users",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "userId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "name",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "votes",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "dayOfMonth",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "ASCENDING"
+        }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

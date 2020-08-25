@@ -1,0 +1,67 @@
+<mat-sidenav-container class="sidenav-container">
+  <mat-sidenav
+      #drawer
+      class="sidenav" fixedInViewport
+      [attr.role]="(isHandset$ | async) ? 'dialog' : 'navigation'"
+      [mode]="(isHandset$ | async) ? 'over' : 'side'"
+      [opened]="false"
+  >
+    <mat-toolbar>Menu</mat-toolbar>
+    <mat-nav-list>
+      <a mat-list-item routerLink="/" (click)="drawer.close()">
+        Hungry?
+      </a>
+      <a mat-list-item routerLink="/voter" (click)="drawer.close()">
+        Voter
+      </a>
+      <a *ngIf="isAdmin$ | async" mat-list-item routerLink="/restaurants" (click)="drawer.close()">
+        Restaurants
+      </a>
+      <a mat-list-item routerLink="/login" (click)="drawer.close()">
+        <ng-container *ngTemplateOutlet="profileLabel"></ng-container>
+      </a>
+    </mat-nav-list>
+  </mat-sidenav>
+  <mat-sidenav-content>
+    <mat-toolbar>
+      <button
+        type="button"
+        aria-label="Toggle sidenav"
+        mat-icon-button
+        (click)="drawer.toggle()"
+        *ngIf="isHandset$ | async"
+      >
+        <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
+      </button>
+      <span class="logo" routerLink="/">ebiLunch</span>
+
+      <span class="fill-space"></span>
+      <div *ngIf="!(isHandset$ | async)">
+        <a mat-button routerLink="/">
+          Hungry?
+        </a>
+        <a mat-button routerLink="/voter">
+          Voter
+        </a>
+        <a *ngIf="isAdmin$ | async" mat-button routerLink="/restaurants">
+          Restaurants
+        </a>
+        <a mat-button routerLink="/login">
+          <ng-container *ngTemplateOutlet="profileLabel"></ng-container>
+        </a>
+      </div>
+    </mat-toolbar>
+
+    <ng-content></ng-content>
+  </mat-sidenav-content>
+</mat-sidenav-container>
+
+<ng-template #profileLabel>
+  <ng-container *ngIf="afAuth.authState | async as user; else loginLabel">
+    Profile
+  </ng-container>
+</ng-template>
+
+<ng-template #loginLabel>
+  Login
+</ng-template>

@@ -1,0 +1,42 @@
+<header>
+  <h1>Your Vote</h1>
+</header>
+
+<form *ngIf="canChangeVote$ | async; else closedMessage" [formGroup]="voteForm" (submit)="submitVote()">
+  <div>
+    <mat-form-field appearance="fill">
+      <mat-label>Restaurant</mat-label>
+      <mat-select formControlName="restaurant">
+        <mat-option *ngFor="let restaurant of (restaurants$ | async)" [value]="restaurant.id">{{ restaurant.name }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <div>
+    <mat-form-field>
+      <mat-label>Time Slot</mat-label>
+      <input matInput type="time" formControlName="timeSlot" step="900">
+    </mat-form-field>
+  </div>
+
+  <div *ngIf="allowsFoodChoice$ | async">
+    <mat-form-field>
+      <mat-label>Food Choice</mat-label>
+      <input matInput type="text" formControlName="foodChoice">
+    </mat-form-field>
+  </div>
+
+  <div class="actions">
+    <button mat-stroked-button type="submit">
+      Submit Vote
+    </button>
+
+    <button *ngIf="(voteByMe$ | async) as voteByMe" mat-stroked-button type="button" (click)="clearVote(voteByMe)">
+      Clear Vote
+    </button>
+  </div>
+</form>
+
+<ng-template #closedMessage>
+  Closed for today.
+</ng-template>

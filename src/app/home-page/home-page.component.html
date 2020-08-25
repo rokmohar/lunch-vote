@@ -1,0 +1,26 @@
+<header>
+  <h1>Hungry?</h1>
+  <p>Let`s find you something to eat.</p>
+</header>
+
+<ng-container *ngFor="let restaurant of (restaurantsWithMenus$ | async)">
+  <div *ngIf="restaurant.menus.length !== 0" class="restaurant">
+    <h2>{{ restaurant.name }}</h2>
+
+    <mat-tab-group mat-align-tabs="center">
+      <ng-container *ngFor="let menu of (restaurant.menus | orderBy: 'priority')">
+        <mat-tab [label]="menu.label">
+          <ng-container [ngSwitch]="menu.type">
+            <ng-container *ngSwitchCase="'html'">
+              <div [innerHTML]="menu.content | safeHtml"></div>
+            </ng-container>
+
+            <ng-container *ngSwitchCase="'external_image'">
+              <img [src]="menu.content" [alt]="menu.label">
+            </ng-container>
+          </ng-container>
+        </mat-tab>
+      </ng-container>
+    </mat-tab-group>
+  </div>
+</ng-container>

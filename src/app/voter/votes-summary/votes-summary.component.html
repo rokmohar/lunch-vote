@@ -1,0 +1,21 @@
+<h1 style="margin-top: 0">
+  Time Slot
+</h1>
+
+<ul>
+  <li *ngFor="let vote of (votesByTimeSlots | orderBy:'timeSlot':false:true)">
+    {{ vote.timeSlot }}: {{ vote.count }} votes
+  </li>
+</ul>
+
+<ng-container *ngIf="votesByFoods.length !== 0">
+  <h1 style="margin-top: 0">
+    Food Choice
+  </h1>
+
+  <ul>
+    <li *ngFor="let vote of (votesByFoods | orderBy:'foodChoice':false:true)">
+      {{ vote.foodChoice }}: {{ vote.count }} votes
+    </li>
+  </ul>
+</ng-container>

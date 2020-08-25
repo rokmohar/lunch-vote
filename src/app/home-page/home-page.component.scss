@@ -1,0 +1,19 @@
+header {
+    text-align: center;
+}
+
+.restaurant {
+  padding-bottom: 20px;
+  text-align: center;
+  max-width: 800px;
+  margin: 0 auto;
+
+  img {
+    max-width: 100%;
+    min-width: 70%;
+  }
+}
+
+mat-tab-group ::ng-deep mat-tab-header {
+  margin-bottom: 40px;
+}
