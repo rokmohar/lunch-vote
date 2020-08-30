@@ -4,7 +4,6 @@ import { AxiosRequestConfig } from 'axios';
 import { Observable } from 'rxjs';
 import { SettingsService } from './settings.service';
 import { map, mergeMap, take } from 'rxjs/operators';
-import { parse } from 'node-html-parser';
 
 interface TextDetectionResponse {
   text: string | null;
@@ -30,37 +29,25 @@ export class ApiService {
           headers: { cookie: settings.slackCookie },
           url: `https://slack.com/api/chat.postMessage?${params.join('&')}`,
         };
-        return this.httpClient.post<T>('/api/http-proxy', body, { responseType: 'json' });
+        return this.httpClient.post<T>('/api/httpProxy', body, { responseType: 'json' });
       }),
     );
   }
 
-  getFoodMenu(): Observable<string> {
-    const body: AxiosRequestConfig = {
-      method: 'GET',
-      url: 'https://api.malcajt.com/getApiData.php?action=embed&id=2030&show=1001&color1=666666&color2=cc0000',
-    };
-    return this.httpClient.post('/api/http-proxy', body, { responseType: 'text' });
-  }
-
-  getParsedFoodMenu(): Observable<string | undefined> {
-    return this.getFoodMenu().pipe(
-      map((menuHtml) => {
-        const root = parse(menuHtml);
-        const today = root.querySelector('#day0');
-
-        if (!today || !today.innerHTML) {
-          throw new Error('Failed to parse Food Menu HTML.');
+  parseFromUrl(url: string, selector: string, responseType: 'text' | 'html'): Observable<string> {
+    return this.httpClient
+      .post('/api/httpHtmlParse', { url, selector, responseType }, { responseType: 'text' })
+      .pipe(map((result) => {
+        if (!result) {
+          throw new Error('Failed to parse HTML.');
         }
-
-        return today.innerHTML.replace(/<br>/g, '\n');
-      }),
-    );
+        return result;
+      }));
   }
 
   getTextFromImage(imageUrl: string): Observable<string | null> {
     return this.httpClient
-      .post<TextDetectionResponse>('/api/image-text-detection', { imageUrl }, { responseType: 'json' })
+      .post<TextDetectionResponse>('/api/imageTextDetection', { imageUrl }, { responseType: 'json' })
       .pipe(map(({ text }) => text));
   }
 }

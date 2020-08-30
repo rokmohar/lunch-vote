@@ -7,6 +7,8 @@ export interface Menu {
   content: string;
   priority: number;
   detectedText: string;
+  httpParseUrl?: string;
+  httpParseSelector?: string;
 }
 
 export type MenuDraft = Omit<Menu, 'id'>;

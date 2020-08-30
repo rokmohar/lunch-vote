@@ -8,11 +8,19 @@
     ],
     "rewrites": [
       {
-        "source": "/api/http-proxy",
+        "source": "/api/queryHtmlParse",
+        "function": "queryHtmlParse"
+      },
+      {
+        "source": "/api/httpHtmlParse",
+        "function": "httpHtmlParse"
+      },
+      {
+        "source": "/api/httpProxy",
         "function": "httpProxy"
       },
       {
-        "source": "/api/image-text-detection",
+        "source": "/api/imageTextDetection",
         "function": "imageTextDetection"
       },
       {

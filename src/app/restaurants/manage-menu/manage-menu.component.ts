@@ -1,11 +1,11 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Menu, MenuDraft, MenuType } from '../../models/menu.model';
-import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
+import { BehaviorSubject, combineLatest, concat, Observable, of } from 'rxjs';
 import { VoterService } from '../../services/voter.service';
 import { SnackService } from '../../services/snack.service';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { switchMap } from 'rxjs/operators';
+import { map, mergeMap, switchMap } from 'rxjs/operators';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { ApiService } from '../../services/api.service';
 import { Restaurant } from '../../models/restaurant.model';
@@ -28,6 +28,8 @@ export class ManageMenuComponent implements OnInit {
     content: new FormControl('', Validators.required),
     detectedText: new FormControl({ value: '', disabled: true }),
     priority: new FormControl(0, [Validators.required, Validators.min(0)]),
+    httpParseUrl: new FormControl(''),
+    httpParseSelector: new FormControl(''),
   });
 
   readonly menuTypes: SelectOption<MenuType>[] = [
@@ -40,6 +42,10 @@ export class ManageMenuComponent implements OnInit {
 
   readonly menu$: Observable<Menu | undefined>;
   readonly restaurant$: Observable<Restaurant | undefined>;
+
+  readonly typeValue$: Observable<string>;
+  readonly isContentDirty$: Observable<boolean>;
+  readonly isHttpParseDirty$: Observable<boolean>;
 
   constructor(
     @Inject(MAT_DIALOG_DATA) private data: { restaurantId: string, menuId?: string },
@@ -58,6 +64,22 @@ export class ManageMenuComponent implements OnInit {
       return this.voterService.getMenuById(restaurantId, menuId);
     }));
     this.restaurant$ = this.restaurantId$.pipe(switchMap((restaurantId) => this.voterService.getRestaurantById(restaurantId)));
+
+    this.typeValue$ = of(this.menuForm.controls.type).pipe(mergeMap((control) => concat(of(control.value), control.valueChanges)));
+    this.isContentDirty$ = of(this.menuForm.controls.content).pipe(mergeMap((control) =>
+      concat(of(control.value), control.valueChanges).pipe(map(() => control.dirty)),
+    ));
+
+    const isHttpParseUrlDirty$ = of(this.menuForm.controls.httpParseUrl).pipe(mergeMap((control) =>
+      concat(of(control.value), control.valueChanges).pipe(map(() => control.dirty)),
+    ));
+    const isHttpParseSelectorDirty$ = of(this.menuForm.controls.httpParseSelector).pipe(mergeMap((control) =>
+      concat(of(control.value), control.valueChanges).pipe(map(() => control.dirty)),
+    ));
+
+    this.isHttpParseDirty$ = combineLatest([isHttpParseUrlDirty$, isHttpParseSelectorDirty$]).pipe(
+      map(([isHttpParseUrlDirty, isHttpParseSelectorDirty]) => isHttpParseUrlDirty || isHttpParseSelectorDirty),
+    );
   }
 
   ngOnInit(): void {
@@ -69,6 +91,8 @@ export class ManageMenuComponent implements OnInit {
           content: menu && menu.content || '',
           detectedText: menu && menu.detectedText || '',
           priority: menu && menu.priority || 0,
+          httpParseUrl: menu && menu.httpParseUrl || '',
+          httpParseSelector: menu && menu.httpParseSelector || '',
         });
       },
     });
@@ -81,7 +105,7 @@ export class ManageMenuComponent implements OnInit {
           this.menuForm.controls.type.enable();
         }
       },
-    })
+    });
   }
 
   async submitMenu(): Promise<void> {
@@ -99,11 +123,18 @@ export class ManageMenuComponent implements OnInit {
       content: this.menuForm.controls.content.value,
       detectedText: this.menuForm.controls.detectedText.value,
       priority: this.menuForm.controls.priority.value,
+      httpParseUrl: this.menuForm.controls.httpParseUrl.value,
+      httpParseSelector: this.menuForm.controls.httpParseSelector.value,
     };
 
     // Clear detected text when Image URL is changed
     if (this.menuForm.controls.content.dirty) {
       menuDraft.detectedText = '';
+    }
+
+    if (menuDraft.type !== 'html') {
+      menuDraft.httpParseUrl = '';
+      menuDraft.httpParseSelector = '';
     }
 
     if (menuId) {
@@ -148,7 +179,7 @@ export class ManageMenuComponent implements OnInit {
     await this.voterService.updateMenuDetectedText(this.restaurantId$.value, menu.id, text);
   }
 
-  publishFoodMenu(restaurant: Restaurant, menu: Menu): void {
+  publishDetectedText(restaurant: Restaurant, menu: Menu): void {
     if (!menu.detectedText) {
       this.snackService.showMessage('Food Menu does not have a detected text.');
       return;
@@ -165,6 +196,27 @@ export class ManageMenuComponent implements OnInit {
     }
 
     this.apiService.sendSlackMessage(text).subscribe({
+      complete: () => this.snackService.showMessage('Food Menu is published.'),
+      error: (error) => this.snackService.processError(error),
+    });
+  }
+
+  publishHttpParse(restaurant: Restaurant, menu: Menu): void {
+    if (!menu.httpParseUrl || !menu.httpParseSelector) {
+      this.snackService.showMessage('HTTP Parse URL or Selector is missing.');
+      return;
+    }
+
+    if (!confirm('Publish Food Menu to Slack?')) {
+      return;
+    }
+
+    this.apiService.parseFromUrl(menu.httpParseUrl, menu.httpParseSelector, 'text')
+      .pipe(
+        map((parsedText) => `*[${restaurant.name} - ${menu.label}]*\n` + '```' + parsedText + '```\n'),
+        mergeMap((text) => this.apiService.sendSlackMessage(text))
+      )
+      .subscribe({
       complete: () => this.snackService.showMessage('Food Menu is published.'),
       error: (error) => this.snackService.processError(error),
     });

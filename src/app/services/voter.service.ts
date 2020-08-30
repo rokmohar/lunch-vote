@@ -120,10 +120,14 @@ export class VoterService {
       .add(data);
   }
 
-  async updateMenu(restaurantId: string, menuId: string, { label, type, content, priority }: MenuDraft): Promise<void> {
+  async updateMenu(
+    restaurantId: string,
+    menuId: string,
+    { label, type, content, priority, detectedText, httpParseUrl, httpParseSelector }: MenuDraft,
+  ): Promise<void> {
     return this.db
       .doc<Menu>(`restaurants/${restaurantId}/menus/${menuId}`)
-      .update({ label, type, content, priority });
+      .update({ label, type, content, priority, detectedText, httpParseUrl, httpParseSelector });
   }
 
   async deleteMenu(restaurantId: string, menuId: string): Promise<void> {

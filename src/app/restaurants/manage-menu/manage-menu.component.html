@@ -39,6 +39,22 @@
     </mat-form-field>
   </div>
 
+  <ng-container *ngIf="(typeValue$ | async) === 'html'">
+    <div>
+      <mat-form-field>
+        <mat-label>HTTP Parse URL</mat-label>
+        <textarea matInput formControlName="httpParseUrl"></textarea>
+      </mat-form-field>
+    </div>
+
+    <div>
+      <mat-form-field>
+        <mat-label>HTTP Parse Selector</mat-label>
+        <textarea matInput formControlName="httpParseSelector"></textarea>
+      </mat-form-field>
+    </div>
+  </ng-container>
+
   <div>
     <mat-form-field>
       <mat-label>Priority</mat-label>
@@ -53,9 +69,31 @@
 
     <ng-container *ngIf="(menu$ | async) as menu">
       <ng-container *ngIf="(restaurant$ | async) as restaurant">
-        <button mat-stroked-button type="button" (click)="publishFoodMenu(restaurant, menu)">
-          Publish Menu
-        </button>
+        <ng-container [ngSwitch]="menu.type">
+          <ng-container *ngSwitchCase="'external_image'">
+            <button
+              *ngIf="menu.detectedText"
+              mat-stroked-button
+              type="button"
+              [disabled]="isContentDirty$ | async"
+              (click)="publishDetectedText(restaurant, menu)"
+            >
+              Publish Menu
+            </button>
+          </ng-container>
+
+          <ng-container *ngSwitchCase="'html'">
+            <button
+              *ngIf="menu.httpParseUrl && menu.httpParseSelector"
+              mat-stroked-button
+              type="button"
+              [disabled]="isHttpParseDirty$ | async"
+              (click)="publishHttpParse(restaurant, menu)"
+            >
+              Publish Menu
+            </button>
+          </ng-container>
+        </ng-container>
       </ng-container>
 
       <button *ngIf="menu.type === 'external_image' && !menu.detectedText" mat-stroked-button type="button" (click)="textDetection(menu)">
