@@ -72,12 +72,6 @@
         <a mat-stroked-button (click)="createMenu(restaurantId)">
           Add Menu
         </a>
-
-        <ng-container *ngIf="(restaurant$ | async) as restaurant">
-          <button mat-stroked-button (click)="publishAllMenus(restaurant, restaurantMenus)">
-            Publish All Menus
-          </button>
-        </ng-container>
       </div>
     </ng-container>
   </ng-container>

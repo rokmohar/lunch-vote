@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { BehaviorSubject, concat, merge, Observable, of, Subject } from 'rxjs';
+import { BehaviorSubject, merge, Observable, of, Subject } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { filter, map, switchMap } from 'rxjs/operators';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
@@ -115,34 +115,6 @@ export class ManageRestaurantComponent implements OnInit {
       data: { restaurantId, menuId },
       maxWidth: 600,
       width: '100%',
-    });
-  }
-
-  publishAllMenus(restaurant: Restaurant, menus: Menu[]): void {
-    const filteredMenus = menus.filter((menu) => !!menu.detectedText);
-
-    if (filteredMenus.length === 0) {
-      this.snackService.showMessage('Restaurant does not have Food Menus with a detected text.');
-      return;
-    }
-
-    if (!confirm('Publish all Food Menus to Slack?')) {
-      return;
-    }
-
-    const publishMenus$ = concat(...filteredMenus.map((menu) => {
-      let text = `*[${restaurant.name} - ${menu.label}]*\n` + '```' + menu.detectedText + '```\n';
-
-      if (menu.type === 'external_image') {
-        text += `Source: ${menu.content}`;
-      }
-
-      return this.apiService.sendSlackMessage(text);
-    }));
-
-    publishMenus$.subscribe({
-      complete: () => this.snackService.showMessage('Food Menus are published.'),
-      error: (error) => this.snackService.processError(error),
     });
   }
 }
