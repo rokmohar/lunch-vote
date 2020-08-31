@@ -1,6 +1,7 @@
 import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { VotesByRestaurant } from '../../models/vote.model';
+import * as levenshtein from 'fast-levenshtein';
 
 interface VotesByFood {
   foodChoice: string;
@@ -43,10 +44,27 @@ export class VotesSummaryComponent {
           const foodChoice = this.normalizeText(vote.foodChoice);
 
           if (foodChoice) {
-            if (summary[foodChoice] === undefined) {
-              summary[foodChoice] = 1;
+            let bestChoiceKey = '';
+            let bestSimilarity = 1;
+
+            for (const choiceKey of Object.keys(summary)) {
+              const otherChoiceNormalized = foodChoice.replace(/[^A-Ža-ž]/g, '');
+              const foodChoiceNormalized = choiceKey.replace(/[^A-Ža-ž]/g, '');
+
+              const wordLength = Math.max(otherChoiceNormalized.length, foodChoiceNormalized.length);
+              const wordDistance = levenshtein.get(otherChoiceNormalized, foodChoiceNormalized);
+              const wordSimilarity = wordDistance / wordLength;
+
+              if (wordSimilarity < bestSimilarity) {
+                bestChoiceKey = choiceKey;
+                bestSimilarity = wordSimilarity;
+              }
+            }
+
+            if (bestSimilarity <= 0.2) {
+              summary[bestChoiceKey]++;
             } else {
-              summary[foodChoice]++;
+              summary[foodChoice] = 1;
             }
           }
 
@@ -62,6 +80,6 @@ export class VotesSummaryComponent {
   }
 
   private normalizeText(value: string): string {
-    return value.substring(0, 1).toLocaleUpperCase() + value.substring(1).toLocaleLowerCase();
+    return (value.substring(0, 1).toLocaleUpperCase() + value.substring(1).toLocaleLowerCase()).replace(/\s+/g, ' ');
   }
 }
